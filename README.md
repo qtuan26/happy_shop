@@ -97,8 +97,8 @@
 
 ## Công nghệ sử dụng
 - **Frontend:** ReactJS, Vite, Tailwind CSS (hoặc Chakra/UI, Lucide Icons)
-- **Backend:** Laravel / NodeJS / Spring Boot (tùy triển khai)
-- **Cơ sở dữ liệu:** MySQL / PostgreSQL / MongoDB
+- **Backend:** Laravel 
+- **Cơ sở dữ liệu:** MySQL
 - **Realtime Chat:** WebSocket / Pusher
 - **Authentication & Authorization:** JWT / Laravel Sanctum
 - **Version Control:** Git & GitHub
