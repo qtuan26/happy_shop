@@ -13,11 +13,15 @@ return new class extends Migration
      */
     public function up() {
         Schema::create('conversations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('customer_id')->constrained('customers');
-            $table->foreignId('employee_id')->nullable()->constrained('employees');
-            $table->enum('status',['open','closed']);
-            $table->timestamp('created_at')->useCurrent();
+            $table->id('conversation_id');
+            $table->foreignId('customer_id')->constrained('customers', 'customer_id')->onDelete('cascade');
+            $table->foreignId('employee_id')->nullable()->constrained('employees', 'employee_id')->onDelete('set null');
+            $table->enum('status', ['open', 'closed'])->default('open');
+            $table->timestamps();
+            
+            $table->index('customer_id');
+            $table->index('employee_id');
+            $table->index('status');
         });
     }
 

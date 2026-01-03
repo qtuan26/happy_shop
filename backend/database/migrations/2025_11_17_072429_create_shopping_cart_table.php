@@ -13,11 +13,11 @@ return new class extends Migration
      */
    public function up() {
         Schema::create('shopping_cart', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('customer_id')->constrained('customers');
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
-            $table->unique('customer_id');
+            $table->id('cart_id');
+            $table->foreignId('customer_id')->unique()->constrained('customers', 'customer_id')->onDelete('cascade');
+            $table->timestamps();
+            
+            $table->index('customer_id');
         });
     }
 

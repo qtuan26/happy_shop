@@ -11,6 +11,7 @@ const Home = lazy(() => import("../components/pages/Home.jsx"));
 const EmployeeChat = lazy(() => import("../components/chat/EmployeeChat.jsx"));
 const CustomerChat = lazy(() => import("../components/chat/CustomerChat.jsx"));
 const Introduction = lazy(() => import("../components/pages/Introduction.jsx"));
+const Account = lazy(() => import("../components/pages/Account.jsx"));
 
 
 
@@ -21,28 +22,52 @@ const routers = [
   {path: "register", component:Register},
   {path: "cart", component:ShoppingCart},
   {path: "support", component:EmployeeChat},
+  {path: "account", component:Account},
   
 
-
-
+  // ===== MAIN LAYOUT =====
   {
     path: "",
-    component: MainLayout, // Header, banner, footer nếu có
+    component: MainLayout,
     children: [
-      { index: true, component: Home }, // Trang chủ
-      {path: "introduction", component:Introduction},
-      {
-        
-        path: "",
-        component: ProductLayout, // Layout có Filter
-        children: [
-          {path: ":brand", component: ProductPage},
-        ],
-      },
-      {path: "/:brand/:id", component: ProductDetail}
+      { index: true, component: Home },
+      { path: "introduction", component: Introduction },
 
+      // ===== PRODUCT =====
+      {
+        path: ":categoryId",
+        component: ProductPage,
+      },
+      {
+        path: ":categoryId/:productId",
+        component: ProductDetail,
+      },
     ],
   },
+
+
+
+  // {
+  //   path: "",
+  //   component: MainLayout, // Header, banner, footer nếu có
+  //   children: [
+  //     { index: true, component: Home }, // Trang chủ
+  //     {path: "introduction", component:Introduction},
+
+  //     {
+  //       path: "category",
+  //       component: ProductLayout,
+  //       children: [
+  //         { path: ":categoryId", component: ProductPage },
+  //         // { path: ":categoryId/:productId", component: ProductDetail },
+  //       ],
+  //     },
+  //     {
+  //       path: "category/:categoryId/:productId",
+  //       component: ProductDetail,
+  //     },
+  //   ],
+  // },
   
 ];
 

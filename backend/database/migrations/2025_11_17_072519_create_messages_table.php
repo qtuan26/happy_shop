@@ -12,13 +12,16 @@ return new class extends Migration
      * @return void
      */
     public function up() {
-        Schema::create('messages', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('conversation_id')->constrained('conversations');
+         Schema::create('messages', function (Blueprint $table) {
+            $table->id('message_id');
+            $table->foreignId('conversation_id')->constrained('conversations', 'conversation_id')->onDelete('cascade');
             $table->foreignId('sender_id')->constrained('users');
             $table->text('message');
-            $table->enum('type',['text','image']);
-            $table->timestamp('created_at')->useCurrent();
+            $table->enum('type', ['text', 'image'])->default('text');
+            $table->timestamps();
+            
+            $table->index('conversation_id');
+            $table->index('sender_id');
         });
     }
 

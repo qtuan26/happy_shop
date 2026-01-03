@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
 
-const Filter = ({ category }) => {
+const Filter = ({ category, onChange  }) => {
   const [filters, setFilters] = useState({
     gender: [],
-    priceRange: [890000, 3650000],
+    minPrice: 50,
     sizes: [],
     brands: []
   });
+
+  //  BẮN FILTER MỖI KHI THAY ĐỔI
+  useEffect(() => {
+    onChange(filters);
+  }, [filters]);
 
   // Accordion state
   const [openSection, setOpenSection] = useState({
@@ -40,7 +45,7 @@ const Filter = ({ category }) => {
 
   const showBrandFilter = allowedBrands.length > 1;
 
-  const sizes = [36, 37, 38, 39, 40, 41, 42, 43];
+  const sizes = [38, 39, 40, 41, 42, 43, 44, 45];
 
   // Handlers
   const handleGenderChange = (gender) => {
@@ -71,12 +76,15 @@ const Filter = ({ category }) => {
   };
 
   const clearFilters = () => {
-    setFilters({
-      gender: [],
-      priceRange: [890000, 3650000],
-      sizes: [],
-      brands: []
-    });
+    const reset = {
+    gender: [],
+    minPrice: 50,
+    sizes: [],
+    brands: []
+    };
+
+    setFilters(reset);
+    onChange(reset);
   };
 
   return (
@@ -107,8 +115,8 @@ const Filter = ({ category }) => {
             <label className="flex items-center cursor-pointer hover:text-blue-600">
               <input 
                 type="checkbox"
-                checked={filters.gender.includes('nam')}
-                onChange={() => handleGenderChange('nam')}
+                checked={filters.gender.includes('Male')}
+                onChange={() => handleGenderChange('Male')}
                 className="mr-2 w-4 h-4"
               />
               Giày Nam
@@ -116,8 +124,8 @@ const Filter = ({ category }) => {
             <label className="flex items-center cursor-pointer hover:text-blue-600">
               <input 
                 type="checkbox"
-                checked={filters.gender.includes('nu')}
-                onChange={() => handleGenderChange('nu')}
+                checked={filters.gender.includes('Female')}
+                onChange={() => handleGenderChange('Female')}
                 className="mr-2 w-4 h-4"
               />
               Giày Nữ
@@ -132,28 +140,29 @@ const Filter = ({ category }) => {
           className="w-full flex justify-between items-center text-gray-700 font-semibold uppercase text-sm"
           onClick={() => toggleSection('price')}
         >
-          Giá
+          Giá ($)
           {openSection.price ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
+
         {openSection.price && (
-          <div className="mt-2 space-y-3">
+          <div className="mt-3 space-y-3">
             <input
               type="range"
-              min="890000"
-              max="3650000"
-              value={filters.priceRange[0]}
+              min={50}
+              max={300}
+              step={10}               // 👉 nhảy số nguyên
+              value={filters.minPrice}
               onChange={(e) =>
                 setFilters(prev => ({
                   ...prev,
-                  priceRange: [parseInt(e.target.value), prev.priceRange[1]]
+                  minPrice: Number(e.target.value)
                 }))
               }
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
-            <div className="flex justify-between text-sm">
-              <span>{filters.priceRange[0].toLocaleString()} ₫</span>
-              <span>-</span>
-              <span>{filters.priceRange[1].toLocaleString()} ₫</span>
+
+            <div className="text-sm text-center font-medium text-gray-700">
+              Từ <span className="text-blue-600">${filters.minPrice}</span> trở lên
             </div>
           </div>
         )}

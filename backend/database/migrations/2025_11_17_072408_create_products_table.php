@@ -13,17 +13,24 @@ return new class extends Migration
      */
     public function up() {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('brand_id')->constrained('brands');
-            $table->foreignId('category_id')->constrained('categories');
-            $table->string('product_name',100)->nullable();
+            $table->id('product_id');
+            $table->foreignId('brand_id')->constrained('brands', 'brand_id');
+            $table->foreignId('category_id')->constrained('categories', 'category_id');
+            $table->string('product_name');
+            $table->string('url_image');
+            $table->string('public_url_image');
             $table->text('description')->nullable();
-            $table->decimal('base_price',10,2)->nullable();
-            $table->string('color',30)->nullable();
-            $table->string('material',50)->nullable();
-            $table->enum('gender',['Male','Female','Unisex'])->nullable();
-            $table->date('date_added')->nullable();
+            $table->decimal('base_price', 10, 2);
+            $table->string('color')->nullable();
+            $table->string('material')->nullable();
+            $table->string('gender')->nullable();
+            $table->date('date_added');
             $table->boolean('is_active')->default(true);
+            $table->timestamps();
+            
+            $table->index('brand_id');
+            $table->index('category_id');
+            $table->index('is_active');
         });
     }
 

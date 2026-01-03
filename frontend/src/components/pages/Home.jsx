@@ -1,7 +1,24 @@
-import React from 'react'
+import React,{ useEffect, useState } from 'react'
 import { ShoppingCart } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
+import ApiService from '../../service/api';
 
 const Home = () => {
+  const [topProducts, setTopProducts] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTopProducts = async () => {
+      try {
+        const data = await ApiService.getTopSellingProducts();
+        setTopProducts(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchTopProducts();
+  }, []);
   return (
     <div className="space-y-6">
       {/* Hero Banners */}
@@ -89,27 +106,44 @@ const Home = () => {
 
       {/* Featured Products Section */}
       <div className="mt-12">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">Sản Phẩm Nổi Bật</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">
+          Sản Phẩm Nổi Bật
+        </h2>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-            <div key={item} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
+          {topProducts.map((item) => (
+            <div
+              key={item.product_id}
+              onClick={() => navigate(`/${item.category_id}/${item.product_id}`)}
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+            >
               <div className="relative">
-                <img 
-                  src={"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop"} 
-                  alt={`Product ${item}`}
-                  className="w-full h-48 object-cover"
+                <img
+                  src={item.url_image}
+                  alt={item.product_name}
+                  className="w-full h-48 object-contain bg-white"
                 />
+
                 <span className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                  -30%
+                  HOT
                 </span>
               </div>
+
               <div className="p-4">
-                <h3 className="text-sm font-semibold text-gray-800 mb-2">Nike Air Max {item}</h3>
+                <h3 className="text-sm font-semibold text-gray-800 mb-2">
+                  {item.product_name}
+                </h3>
+
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-red-500 font-bold">1.500.000₫</p>
-                    <p className="text-gray-400 text-xs line-through">2.000.000₫</p>
+                    <p className="text-red-500 font-bold">
+                      ${Number(item.base_price).toFixed(2)}
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      Đã bán: {item.total_sold}
+                    </p>
                   </div>
+
                   <button className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700">
                     <ShoppingCart size={16} />
                   </button>

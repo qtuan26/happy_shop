@@ -13,15 +13,16 @@ return new class extends Migration
      */
     public function up() {
         Schema::create('product_reviews', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained('products');
-            $table->foreignId('customer_id')->constrained('customers');
+            $table->id('review_id');
+            $table->foreignId('customer_id')->constrained('customers', 'customer_id')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained('products', 'product_id')->onDelete('cascade');
             $table->integer('rating');
-            $table->string('title',100)->nullable();
             $table->text('review_text')->nullable();
-            $table->boolean('is_verified_purchase')->default(false);
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamps();
+            
+            $table->index('product_id');
+            $table->index('customer_id');
+            $table->index('rating');
         });
     }
 

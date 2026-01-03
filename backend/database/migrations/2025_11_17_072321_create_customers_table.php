@@ -13,16 +13,16 @@ return new class extends Migration
      */
     public function up() {
         Schema::create('customers', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->string('first_name',50)->nullable();
-            $table->string('last_name',50)->nullable();
-            $table->string('phone',20)->nullable();
-            $table->string('address',255)->nullable();
-            $table->string('city',50)->nullable();
-            $table->string('state',50)->nullable();
-            $table->string('zip_code',10)->nullable();
-            $table->date('registration_date')->nullable();
+            $table->id('customer_id');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('full_name', 100);
+            $table->string('phone', 20)->nullable();
+            $table->string('address')->nullable();
+            $table->string('city', 100)->nullable();
+            $table->string('state', 100)->nullable();
+            $table->string('zip_code', 20)->nullable();
+            $table->date('registration_date');
+            $table->timestamps();
         });
     }
 

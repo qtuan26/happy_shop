@@ -12,14 +12,14 @@ return new class extends Migration
      * @return void
      */
     public function up() {
-        Schema::create('employees', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->string('first_name',50)->nullable();
-            $table->string('last_name',50)->nullable();
-            $table->string('phone',20)->nullable();
-            $table->string('position',50)->nullable();
-            $table->date('hire_date')->nullable();
+         Schema::create('employees', function (Blueprint $table) {
+            $table->id('employee_id');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('full_name', 100);
+            $table->string('phone', 20)->nullable();
+            $table->string('position')->nullable();
+            $table->date('hire_date');
+            $table->timestamps();
         });
     }
 

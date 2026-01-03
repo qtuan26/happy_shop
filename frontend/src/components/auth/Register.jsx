@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, Check } from 'lucide-react';
+import ApiService from '../../service/api';
+import { message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -8,11 +11,11 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    phoneNumber: '',
-    agreeToTerms: false
+    password_confirmation: '',
+    phone: '',
   });
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -67,20 +70,35 @@ const Register = () => {
       newErrors.phoneNumber = 'Số điện thoại phải có 10 chữ số';
     }
     
-    // Terms validation
-    if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = 'Bạn phải đồng ý với điều khoản sử dụng';
-    }
+    
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log('Register data:', formData);
-      // Handle registration logic here
+    if (!validateForm()) return;
+
+    try {
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.confirmPassword, 
+        phone: formData.phoneNumber,                     
+      };
+
+      const res = await ApiService.register(payload);
+      message.success(res);
+      message.success("Đăng ký thành công! Vui lòng đăng nhập.");
+      navigate('/login');
+    } catch (err) {
+      if (err?.errors) {
+        setErrors(err.errors); // lỗi validation từ Laravel
+      } else {
+        message.error(err?.message || 'Đăng ký thất bại');
+      }
     }
   };
 
@@ -303,33 +321,7 @@ const Register = () => {
                 )}
               </div>
 
-              {/* Terms Checkbox */}
-              <div>
-                <label className="flex items-start cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="agreeToTerms"
-                    checked={formData.agreeToTerms}
-                    onChange={handleChange}
-                    className={`mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 ${
-                      errors.agreeToTerms ? 'border-red-500' : ''
-                    }`}
-                  />
-                  <span className="ml-2 text-sm text-gray-600">
-                    Tôi đồng ý với{' '}
-                    <a href="#" className="text-blue-700 hover:text-blue-800 font-medium">
-                      Điều khoản sử dụng
-                    </a>{' '}
-                    và{' '}
-                    <a href="#" className="text-blue-700 hover:text-blue-800 font-medium">
-                      Chính sách bảo mật
-                    </a>
-                  </span>
-                </label>
-                {errors.agreeToTerms && (
-                  <p className="mt-1 text-sm text-red-500">{errors.agreeToTerms}</p>
-                )}
-              </div>
+              
 
               {/* Submit Button */}
               <button

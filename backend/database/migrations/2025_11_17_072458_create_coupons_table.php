@@ -13,18 +13,20 @@ return new class extends Migration
      */
     public function up() {
         Schema::create('coupons', function (Blueprint $table) {
-            $table->id();
-            $table->string('coupon_code',50)->unique();
-            $table->text('description')->nullable();
-            $table->enum('discount_type',['percentage','fixed_amount']);
-            $table->decimal('discount_value',10,2);
-            $table->decimal('min_purchase_amount',10,2)->nullable();
-            $table->decimal('max_discount_amount',10,2)->nullable();
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->id('coupon_id');
+            $table->string('coupon_code', 50)->unique();
+            $table->string('description')->nullable();
+            $table->enum('discount_type', ['percentage', 'fixed_amount']);
+            $table->decimal('discount_value', 10, 2);
+            $table->decimal('min_purchase_amount', 10, 2)->nullable();
             $table->integer('usage_limit')->nullable();
-            $table->integer('times_used')->default(0);
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->timestamps();
+            
+            $table->index('coupon_code');
+            $table->index('is_active');
         });
     }
 

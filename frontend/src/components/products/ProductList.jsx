@@ -1,13 +1,13 @@
 import React from "react";
 import { ShoppingCart } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const ProductList = ({ products }) => {
+const ProductList = ({ products,categoryId  }) => {
   const navigate = useNavigate();
-  const { brand } = useParams();
+  
 
   const handleClick = (id) => {
-    navigate(`/${brand}/${id}`);
+    navigate(`/${categoryId}/${id}`);
   };
 
   return (
@@ -19,17 +19,12 @@ const ProductList = ({ products }) => {
             onClick={() => handleClick(product.id)}
             className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           >
-            <div className="relative">
+            <div className="relative h-48 bg-gray-50 flex items-center justify-center">
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-48 object-cover"
+                className="max-h-full max-w-full object-contain"
               />
-              {product.discount && (
-                <span className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                  -{product.discount}%
-                </span>
-              )}
             </div>
             <div className="p-4">
               <h3 className="text-sm font-semibold text-gray-800 mb-2">
@@ -37,12 +32,8 @@ const ProductList = ({ products }) => {
               </h3>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-red-500 font-bold">{product.price}₫</p>
-                  {product.oldPrice && (
-                    <p className="text-gray-400 text-xs line-through">
-                      {product.oldPrice}₫
-                    </p>
-                  )}
+                  <p className="text-red-500 font-bold">${product.price}</p>
+                  
                 </div>
                 <button
                   className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700"

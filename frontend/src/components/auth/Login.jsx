@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import ApiService from '../../service/api';
+import { message } from 'antd';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,12 +48,24 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log('Login data:', formData);
-      // Handle login logic here
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      const data = await ApiService.login(formData);
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('user', JSON.stringify(data.user));
+      message.success('Đăng nhập thành công');
+      navigate('/');
+    } catch (error) {
+      message.error(error || 'Đăng nhập thất bại');
+    } finally {
+      setLoading(false);
     }
+    
+    
   };
 
   return (

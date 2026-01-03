@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up() {
         Schema::create('order_coupons', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained('orders');
-            $table->foreignId('coupon_id')->constrained('coupons');
-            $table->decimal('discount_applied',10,2);
+            $table->id('order_coupon_id');
+            $table->foreignId('order_id')->constrained('orders', 'order_id')->onDelete('cascade');
+            $table->foreignId('coupon_id')->constrained('coupons', 'coupon_id');
+            $table->decimal('discount_applied', 10, 2);
+            $table->timestamps();
         });
     }
 
