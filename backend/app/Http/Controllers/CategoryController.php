@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Product;
 
+
 class CategoryController extends Controller
 {
     // GET /api/categories
@@ -85,4 +86,8 @@ class CategoryController extends Controller
             'data' => $products
         ]);
     }
+
+    
+
+
 }

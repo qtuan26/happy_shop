@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Trash2,
   Plus,
@@ -9,7 +9,9 @@ import {
   ChevronRight,
   Shield,
   CreditCard,
-  X
+  X,
+  Check,
+  Smartphone
 } from 'lucide-react';
 import ApiService from '../../service/api';
 import { useNavigate } from 'react-router-dom';
@@ -28,10 +30,12 @@ const ShoppingCart = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
 
-  // ===== MOMO QR MODAL =====
+  // ===== MOMO =====
   const [showMomoModal, setShowMomoModal] = useState(false);
   const [momoOrder, setMomoOrder] = useState(null);
   const [momoQR, setMomoQR] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState('pending'); // 'pending' | 'completed'
+  const pollingInterval = useRef(null);
 
   const resetCoupon = () => {
     setAppliedCoupon(null);
@@ -78,6 +82,52 @@ const ShoppingCart = () => {
       setLoading(false);
     }
   };
+
+  // ================= POLLING ORDER STATUS =================
+  const startPolling = (orderId) => {
+    // Clear existing interval
+    if (pollingInterval.current) {
+      clearInterval(pollingInterval.current);
+    }
+
+    // Poll every 3 seconds
+    pollingInterval.current = setInterval(async () => {
+      try {
+        // Giả lập check order status - bạn cần tạo API endpoint này
+        const response = await fetch(`/api/orders/${orderId}/status`, {
+          headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          }
+        });
+        const data = await response.json();
+
+        if (data.status === 'completed') {
+          setPaymentStatus('completed');
+          clearInterval(pollingInterval.current);
+          
+          // Show success
+          setTimeout(() => {
+            setShowMomoModal(false);
+            setMomoOrder(null);
+            setMomoQR(null);
+            setCartItems([]);
+            resetCoupon();
+            alert('Thanh toán MoMo thành công! ✅');
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    }, 3000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pollingInterval.current) {
+        clearInterval(pollingInterval.current);
+      }
+    };
+  }, []);
 
   // ================= UPDATE QUANTITY =================
   const updateQuantity = async (id, newQuantity) => {
@@ -181,35 +231,35 @@ const ShoppingCart = () => {
         }
 
         setMomoOrder(res.order);
-        setMomoQR(res.qr_code);
+        
+        // Tạo URL để quét QR - trỏ đến trang thanh toán MoMo
+        const paymentUrl = `${window.location.origin}/momo-payment?order_id=${res.order.order_id}&amount=${res.order.total_amount}`;
+        
+        setMomoQR({
+          ...res.qr_code,
+          payment_url: paymentUrl
+        });
+        
+        setPaymentStatus('pending');
         setShowMomoModal(true);
+        
+        // Bắt đầu polling để check trạng thái thanh toán
+        startPolling(res.order.order_id);
       }
     } catch (error) {
       alert(error.message || 'Checkout thất bại');
     }
   };
 
-  // ================= CONFIRM MOMO PAYMENT =================
-  const handleConfirmMomo = async () => {
-    try {
-      await ApiService.confirmMomo(momoOrder.order_id);
-
-      alert('Thanh toán MOMO thành công!');
-      setShowMomoModal(false);
-      setMomoOrder(null);
-      setMomoQR(null);
-      setCartItems([]);
-      resetCoupon();
-    } catch (error) {
-      alert(error.message || 'Xác nhận thanh toán thất bại');
-    }
-  };
-
   const handleCancelMomo = () => {
-    if (window.confirm('Bạn có chắc muốn hủy thanh toán MOMO?')) {
+    if (window.confirm('Bạn có chắc muốn hủy thanh toán MoMo?')) {
+      if (pollingInterval.current) {
+        clearInterval(pollingInterval.current);
+      }
       setShowMomoModal(false);
       setMomoOrder(null);
       setMomoQR(null);
+      setPaymentStatus('pending');
       alert('Đơn hàng đã được tạo nhưng chưa thanh toán. Vui lòng thanh toán sau.');
     }
   };
@@ -456,68 +506,89 @@ const ShoppingCart = () => {
       {showMomoModal && momoQR && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
-            <button
-              onClick={handleCancelMomo}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
-              <X size={24} />
-            </button>
-
-            <div className="text-center">
-              <div className="bg-pink-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CreditCard size={32} className="text-white" />
-              </div>
-
-              <h2 className="text-2xl font-bold mb-2">Thanh toán MoMo</h2>
-              <p className="text-gray-600 mb-6">
-                Quét mã QR để thanh toán
-              </p>
-
-              <div className="bg-gray-100 p-6 rounded-xl mb-6">
-                <div className="bg-white p-6 rounded-lg inline-block">
-                  <QRCodeSVG 
-                    value={momoQR.qr_string}
-                    size={200}
-                    level="H"
-                    includeMargin={true}
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-3">
-                  Quét mã QR bằng ứng dụng MoMo
-                </p>
-              </div>
-
-              <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-600">Mã đơn hàng:</span>
-                  <span className="font-semibold">#{momoOrder.order_id}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Số tiền:</span>
-                  <span className="font-bold text-pink-600 text-lg">
-                    ${momoOrder.total_amount.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleConfirmMomo}
-                className="w-full bg-pink-600 text-white py-3 rounded-lg font-semibold hover:bg-pink-700 transition mb-3"
-              >
-                Tôi đã thanh toán
-              </button>
-
+            {paymentStatus === 'pending' && (
               <button
                 onClick={handleCancelMomo}
-                className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
               >
-                Hủy thanh toán
+                <X size={24} />
               </button>
+            )}
 
-              <p className="text-xs text-gray-500 mt-4">
-                Đây là mô phỏng thanh toán MoMo
-              </p>
-            </div>
+            {paymentStatus === 'pending' ? (
+              <div className="text-center">
+                <div className="bg-pink-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Smartphone size={32} className="text-white" />
+                </div>
+
+                <h2 className="text-2xl font-bold mb-2">Quét mã để thanh toán</h2>
+                <p className="text-gray-600 mb-6">
+                  Sử dụng điện thoại quét mã QR
+                </p>
+
+                <div className="bg-gray-100 p-6 rounded-xl mb-6">
+                  <div className="bg-white p-6 rounded-lg inline-block">
+                    <QRCodeSVG 
+                      value={momoQR.payment_url}
+                      size={220}
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3">
+                    Quét mã QR bằng camera điện thoại
+                  </p>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-600">Mã đơn hàng:</span>
+                    <span className="font-semibold">#{momoOrder.order_id}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Số tiền:</span>
+                    <span className="font-bold text-pink-600 text-lg">
+                      ${momoOrder.total_amount.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-yellow-800 flex items-start gap-2">
+                    <span className="text-lg">💡</span>
+                    <span>
+                      Sau khi quét mã, xác nhận thanh toán trên điện thoại. 
+                      Trang này sẽ tự động cập nhật khi thanh toán thành công.
+                    </span>
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
+                  <div className="w-2 h-2 bg-pink-600 rounded-full animate-pulse"></div>
+                  <span>Đang chờ thanh toán...</span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center">
+                <div className="bg-green-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                  <Check size={40} className="text-white" />
+                </div>
+
+                <h2 className="text-2xl font-bold text-green-600 mb-2">
+                  Thanh toán thành công!
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Đơn hàng của bạn đã được xác nhận
+                </p>
+
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Mã đơn hàng</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    #{momoOrder.order_id}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

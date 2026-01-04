@@ -14,11 +14,12 @@ class Order extends Model
 
     protected $fillable = [
         'customer_id',
-        'total_amount',
-        'tax_amount',
+        'subtotal',
+        'shipping_fee',
         'discount_amount',
+        'total_amount',
         'payment_method',
-        'status'
+        'status',
     ];
 
     /* ================= RELATIONSHIPS ================= */
@@ -33,5 +34,9 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class, 'order_id', 'order_id');
+    }
+     public function coupons()
+    {
+        return $this->hasMany(OrderCoupon::class, 'order_id', 'order_id');
     }
 }

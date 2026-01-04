@@ -150,7 +150,7 @@ const Header = () => {
         <nav className="bg-blue-900 border-t border-blue-700">
           <div className="container mx-auto px-4 flex">
             <button
-              className="px-4 py-3 hover:bg-blue-800 flex items-center gap-2"
+              className="px-15 py-3 hover:bg-blue-800 flex items-center gap-2"
               onClick={() => navigate('/')}
             >
               <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
@@ -161,7 +161,7 @@ const Header = () => {
               <button
                 key={category.category_id}
                 onClick={() => handleCategoryClick(category)}
-                className={`px-6 py-3 hover:bg-blue-800 ${
+                className={`px-15 py-3 hover:bg-blue-800 ${
                   currentPage === category.category_id ? 'bg-blue-800' : ''
                 }`}
               >

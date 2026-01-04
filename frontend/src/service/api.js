@@ -176,6 +176,96 @@ export default class ApiService {
     }
   }
 
+  // ===== COUPON =====
+
+  // Lấy danh sách coupon (trang chủ)
+  static async getActiveCoupons() {
+    try {
+      const response = await axiosInstance.get('/coupons');
+      return response.data.data; // array coupons
+    } catch (error) {
+      throw error.response?.data?.message || 'Không lấy được danh sách coupon';
+    }
+  }
+
+  // Lấy chi tiết coupon khi click
+  static async getCouponDetail(couponId) {
+    try {
+      const response = await axiosInstance.get(`/coupons/${couponId}`);
+      return response.data.data; // object coupon
+    } catch (error) {
+      throw error.response?.data?.message || 'Không lấy được chi tiết coupon';
+    }
+  }
+  static async applyCoupon(data) {
+    try {
+      const response = await axiosInstance.post('/cart/apply-coupon', data);
+      return response.data; // { coupon: {...} }
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Áp dụng coupon thất bại');
+    }
+  }
+
+  // ===== CHECKOUT =====
+  static async checkout(data) {
+    try {
+      const response = await axiosInstance.post('/cart/checkout', data);
+      return response.data; // { order_id, total_amount, message }
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Thanh toán thất bại');
+    }
+  }
+
+  // ===== QUICK BUY =====
+  static async quickBuyApplyCoupon(data) {
+    try {
+      const response = await axiosInstance.post('/quick-buy/apply-coupon', data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Áp dụng coupon thất bại');
+    }
+  }
+
+  static async quickBuyCheckout(data) {
+    try {
+      const response = await axiosInstance.post('/quick-buy/checkout', data);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Thanh toán thất bại');
+    }
+  }
+  // ===== PRODUCT REVIEW =====
+  static async submitReview(productId, data) {
+    try {
+      const response = await axiosInstance.post(
+        `/products/${productId}/reviews`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.message || 'Gửi đánh giá thất bại'
+      );
+    }
+  }
+
+  // ===== MOMO =====
+  static async confirmMomo(orderId) {
+    try {
+      const response = await axiosInstance.post(
+        '/checkout/momo/confirm',
+        { order_id: orderId }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.message || 'Xác nhận thanh toán MOMO thất bại'
+      );
+    }
+  }
+
+
+
 
 
 }

@@ -14,19 +14,34 @@ return new class extends Migration
     public function up() {
         Schema::create('orders', function (Blueprint $table) {
             $table->id('order_id');
-            $table->foreignId('customer_id')->constrained('customers', 'customer_id');
+
+            $table->foreignId('customer_id')
+                ->constrained('customers', 'customer_id');
+
             $table->timestamp('order_date')->useCurrent();
-            $table->decimal('total_amount', 10, 2);
-            $table->decimal('tax_amount', 10, 2)->default(0.00);
+
+            // Tổng tiền sản phẩm
+            $table->decimal('subtotal', 10, 2);
+
+            // Phí ship cố định
+            $table->decimal('shipping_fee', 10, 2)->default(20.00);
+
+            // Tổng tiền giảm
             $table->decimal('discount_amount', 10, 2)->default(0.00);
+
+            // Tổng thanh toán cuối cùng
+            $table->decimal('total_amount', 10, 2);
+
             $table->string('payment_method')->nullable();
             $table->string('status')->default('pending');
+
             $table->timestamps();
-            
+
             $table->index('customer_id');
             $table->index('status');
             $table->index('order_date');
         });
+
     }
 
 

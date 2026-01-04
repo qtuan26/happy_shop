@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Heart, Share2, Star, Truck, ShieldCheck, RotateCcw, ArrowLeft, Plus, Minus, Check } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import message from 'antd/lib/message';
+import QuickBuyModal from '../pages/QuickBuyModal';
 import ApiService from '../../service/api';
 
 const ProductDetail = () => {
@@ -12,6 +13,11 @@ const ProductDetail = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showQuickBuyModal, setShowQuickBuyModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -137,14 +143,45 @@ const ProductDetail = () => {
       alert('Vui lòng chọn size!');
       return;
     }
+    setShowQuickBuyModal(true);
     
-    
-    console.log('Buy now:', {
-      product: product.id,
-      size: selectedSize,
-      quantity
-    });
   };
+  const handleSubmitReview = async () => {
+    if (!reviewText.trim()) {
+      message.error('Vui lòng nhập nội dung đánh giá');
+      return;
+    }
+
+    try {
+      setSubmittingReview(true);
+
+      await ApiService.submitReview(product.id, {
+        rating: reviewRating,
+        review_text: reviewText
+      });
+
+      message.success('Đánh giá thành công');
+
+      // Reset form
+      setReviewRating(5);
+      setReviewText('');
+
+      // Reload product để cập nhật review mới
+      const data = await ApiService.getProductDetail(productId);
+      setProduct(prev => ({
+        ...prev,
+        reviews: data.reviews,
+        reviewCount: data.review_count,
+        rating: data.avg_rating
+      }));
+
+    } catch (error) {
+      message.error(error.message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -238,8 +275,8 @@ const ProductDetail = () => {
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-white rounded-lg shadow-md p-4 text-center">
                 <Truck className="mx-auto mb-2 text-blue-600" size={28} />
-                <p className="text-xs font-semibold text-gray-800">Miễn phí vận chuyển</p>
-                <p className="text-xs text-gray-500">Đơn từ $50</p>
+                <p className="text-xs font-semibold text-gray-800">Vận chuyển mọi nơi</p>
+                <p className="text-xs text-gray-500">Nhanh - An Toàn - Uy Tín</p>
               </div>
               <div className="bg-white rounded-lg shadow-md p-4 text-center">
                 <ShieldCheck className="mx-auto mb-2 text-blue-600" size={28} />
@@ -444,26 +481,79 @@ const ProductDetail = () => {
 
           {activeTab === 'reviews' && (
             <div className="mb-8">
+              {/* Write Review */}
+              <div className="mb-8 border rounded-xl p-6 bg-gray-50">
+                <h4 className="text-lg font-semibold mb-4">
+                  Viết đánh giá của bạn
+                </h4>
+
+                {/* Rating */}
+                <div className="flex items-center mb-4">
+                  {[1,2,3,4,5].map((star) => (
+                    <Star
+                      key={star}
+                      size={24}
+                      onClick={() => setReviewRating(star)}
+                      className={`cursor-pointer mr-1 ${
+                        star <= reviewRating
+                          ? 'text-yellow-400 fill-yellow-400'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                  <span className="ml-3 text-sm text-gray-600">
+                    {reviewRating}/5
+                  </span>
+                </div>
+
+                {/* Text */}
+                <textarea
+                  rows={4}
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."
+                  className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
+                {/* Submit */}
+                <div className="mt-4 text-right">
+                  <button
+                    onClick={handleSubmitReview}
+                    disabled={submittingReview}
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {submittingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
+                  </button>
+                </div>
+              </div>
               <h3 className="text-xl font-bold text-gray-800 mb-4">Đánh giá từ khách hàng</h3>
               {product.reviews.length > 0 ? (
                 <div className="space-y-4">
                   {product.reviews.map((review) => (
                     <div key={review.review_id} className="border-b pb-4">
-                      <div className="flex items-center mb-2">
-                        <div className="flex items-center mr-4">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              size={16} 
-                              className={i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
-                            />
-                          ))}
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="font-semibold text-gray-800">
+                            {review.customer?.full_name || 'Khách hàng'}
+                          </p>
+
+                          <div className="flex items-center mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                size={16} 
+                                className={i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
+                              />
+                            ))}
+                            <span className="text-sm text-gray-500 ml-3">
+                              {new Date(review.created_at).toLocaleDateString('vi-VN')}
+                            </span>
+                          </div>
                         </div>
-                        <span className="text-sm text-gray-500">
-                          {new Date(review.created_at).toLocaleDateString('vi-VN')}
-                        </span>
                       </div>
+
                       <p className="text-gray-700">{review.review_text}</p>
+
                     </div>
                   ))}
                 </div>
@@ -471,6 +561,7 @@ const ProductDetail = () => {
                 <p className="text-gray-500">Chưa có đánh giá nào cho sản phẩm này.</p>
               )}
             </div>
+            
           )}
         </div>
 
@@ -513,6 +604,13 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+      <QuickBuyModal
+        isOpen={showQuickBuyModal}
+        onClose={() => setShowQuickBuyModal(false)}
+        product={product}
+        selectedSize={selectedSize}
+        quantity={quantity}
+      />
     </div>
   );
 };

@@ -47,49 +47,52 @@ class ProductController extends Controller
         'inventory' => function ($q) {
             $q->select('inventory_id', 'product_id', 'size', 'quantity');
         },
-        'reviews' => function ($q) {
-            $q->select(
-                'review_id',
-                'product_id',
-                'customer_id',
-                'rating',
-                'review_text',
-                'created_at'
-            );
+        'reviews.customer' => function ($q) {
+            $q->select('customer_id', 'full_name');
         }
-        ])
-        ->where('product_id', $id)
-        ->where('is_active', 1)
-        ->first();
+    ])
+    ->where('product_id', $id)
+    ->where('is_active', 1)
+    ->first();
 
-        if (!$product) {
-            return response()->json([
-                'message' => 'Product not found'
-            ], 404);
-        }
-
+    if (!$product) {
         return response()->json([
-            'product' => [
-                'product_id'   => $product->product_id,
-                'brand_id'     => $product->brand_id,
-                'category_id'  => $product->category_id,
-                'product_name' => $product->product_name,
-                'url_image'    => $product->url_image,
-                'base_price'   => $product->base_price,
-                'description'  => $product->description,
+            'message' => 'Product not found'
+        ], 404);
+    }
 
-                //  INVENTORY
-                'inventory'    => $product->inventory,
-
-                //  REVIEWS
-                'reviews'      => $product->reviews,
-
-                //  STATS 
-                'avg_rating'   => round($product->reviews->avg('rating'), 1),
-                'review_count' => $product->reviews->count(),
-                'total_stock'  => $product->inventory->sum('quantity'),
+    // Format reviews để có tên khách hàng
+    $reviews = $product->reviews->map(function ($review) {
+        return [
+            'review_id'   => $review->review_id,
+            'rating'      => $review->rating,
+            'review_text'=> $review->review_text,
+            'created_at' => $review->created_at,
+            'customer'   => [
+                'customer_id' => $review->customer?->customer_id,
+                'full_name'   => $review->customer?->full_name,
             ]
-        ]);
+        ];
+    });
+
+    return response()->json([
+        'product' => [
+            'product_id'   => $product->product_id,
+            'brand_id'     => $product->brand_id,
+            'category_id'  => $product->category_id,
+            'product_name' => $product->product_name,
+            'url_image'    => $product->url_image,
+            'base_price'   => $product->base_price,
+            'description' => $product->description,
+
+            'inventory'    => $product->inventory,
+            'reviews'      => $reviews,
+
+            'avg_rating'   => round($product->reviews->avg('rating'), 1),
+            'review_count' => $product->reviews->count(),
+            'total_stock'  => $product->inventory->sum('quantity'),
+        ]
+    ]);
     }
     // GET /api/products/search?q=abc
     public function search(Request $request)

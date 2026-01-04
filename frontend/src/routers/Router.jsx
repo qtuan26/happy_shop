@@ -12,6 +12,8 @@ const EmployeeChat = lazy(() => import("../components/chat/EmployeeChat.jsx"));
 const CustomerChat = lazy(() => import("../components/chat/CustomerChat.jsx"));
 const Introduction = lazy(() => import("../components/pages/Introduction.jsx"));
 const Account = lazy(() => import("../components/pages/Account.jsx"));
+const MoMoPayment = lazy(() => import("../components/pages/MoMOoPayment.jsx"));
+
 
 
 
@@ -23,6 +25,8 @@ const routers = [
   {path: "cart", component:ShoppingCart},
   {path: "support", component:EmployeeChat},
   {path: "account", component:Account},
+  {path: "momo-payment", component:MoMoPayment},
+  // <Route path="/momo-payment" element={<MoMoPayment />} />
   
 
   // ===== MAIN LAYOUT =====

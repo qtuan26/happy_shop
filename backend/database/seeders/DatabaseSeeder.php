@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             CustomerSeeder::class,
-            EmployeeSeeder::class,
             BrandSeeder::class,
             CategorySeeder::class,
             ProductSeeder::class,
@@ -30,8 +29,6 @@ class DatabaseSeeder extends Seeder
             ProductReviewSeeder::class,
             ShoppingCartSeeder::class,
             CartItemSeeder::class,
-            ConversationSeeder::class,
-            MessageSeeder::class,
         ]);
     }
 }
