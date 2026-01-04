@@ -234,6 +234,14 @@ export default class ApiService {
       throw new Error(error.response?.data?.message || 'Thanh toán thất bại');
     }
   }
+  static async confirmQuickBuyMomo(orderId) {
+    try {
+      const response = await axiosInstance.post('/quick-buy/confirm-momo', { order_id: orderId });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Xác nhận thanh toán thất bại');
+    }
+  }
   // ===== PRODUCT REVIEW =====
   static async submitReview(productId, data) {
     try {
@@ -261,6 +269,71 @@ export default class ApiService {
       throw new Error(
         error.response?.data?.message || 'Xác nhận thanh toán MOMO thất bại'
       );
+    }
+  }
+
+  // ===== CUSTOMER CHAT =====
+  static async getOrCreateConversation() {
+    try {
+      const response = await axiosInstance.get('/chat/conversation');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Không thể tạo cuộc trò chuyện';
+    }
+  }
+
+  static async sendChatMessage(conversationId, message) {
+    try {
+      const response = await axiosInstance.post('/chat/send', {
+        conversation_id: conversationId,
+        message: message
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Không thể gửi tin nhắn';
+    }
+  }
+
+  static async getNewMessages(conversationId, afterMessageId = 0) {
+    try {
+      const response = await axiosInstance.get(
+        `/chat/${conversationId}/messages`,
+        { params: { after_message_id: afterMessageId } }
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Không thể tải tin nhắn mới';
+    }
+  }
+
+  // ===== ADMIN CHAT =====
+  static async getAdminConversations() {
+    try {
+      const response = await axiosInstance.get('/admin/chat/conversations');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Không thể tải danh sách cuộc trò chuyện';
+    }
+  }
+
+  static async getConversationMessages(conversationId) {
+    try {
+      const response = await axiosInstance.get(`/admin/chat/${conversationId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Không thể tải tin nhắn';
+    }
+  }
+
+  static async adminSendMessage(conversationId, message) {
+    try {
+      const response = await axiosInstance.post('/admin/chat/send', {
+        conversation_id: conversationId,
+        message: message
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Không thể gửi tin nhắn';
     }
   }
 

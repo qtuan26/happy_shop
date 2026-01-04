@@ -81,7 +81,7 @@ class QuickBuyController extends Controller
             'product_id' => 'required|exists:products,product_id',
             'size' => 'required|string',
             'quantity' => 'required|integer|min:1',
-            'payment_method' => 'required|string',
+            'payment_method' => 'required|string|in:COD,MOMO',
             'coupon_code' => 'nullable|string',
         ]);
 
@@ -90,12 +90,16 @@ class QuickBuyController extends Controller
 
         return DB::transaction(function () use ($request, $product, $customer) {
             
+            /* 1️⃣ SUBTOTAL */
             $subtotal = $product->base_price * $request->quantity;
+            
+            /* 2️⃣ SHIPPING */
             $shippingFee = 20;
+            
+            /* 3️⃣ COUPON */
             $discountAmount = 0;
             $appliedCoupon = null;
 
-            // Apply coupon
             if ($request->coupon_code) {
                 $coupon = Coupon::where('coupon_code', $request->coupon_code)
                     ->where('is_active', 1)
@@ -106,11 +110,11 @@ class QuickBuyController extends Controller
                     throw new \Exception('Coupon không hợp lệ');
                 }
 
-                if ($coupon->usage_limit <= 0) {
+                if ($coupon->usage_limit !== null && $coupon->usage_limit <= 0) {
                     throw new \Exception('Coupon đã hết lượt sử dụng');
                 }
 
-                if ($subtotal < $coupon->min_purchase_amount) {
+                if ($coupon->min_purchase_amount !== null && $subtotal < $coupon->min_purchase_amount) {
                     throw new \Exception('Đơn hàng chưa đủ điều kiện áp dụng coupon');
                 }
 
@@ -133,9 +137,13 @@ class QuickBuyController extends Controller
                 $appliedCoupon = $coupon;
             }
 
+            /* 4️⃣ TOTAL */
             $total = $subtotal + $shippingFee - $discountAmount;
 
-            // Check inventory
+            /* 5️⃣ ORDER STATUS */
+            $orderStatus = $request->payment_method === 'MOMO' ? 'pending' : 'completed';
+
+            /* 6️⃣ CHECK INVENTORY (chỉ cho COD, MOMO sẽ check sau) */
             $inventory = Inventory::where('product_id', $request->product_id)
                 ->where('size', $request->size)
                 ->lockForUpdate()
@@ -149,7 +157,7 @@ class QuickBuyController extends Controller
                 throw new \Exception("Không đủ tồn kho");
             }
 
-            // Create order
+            /* 7️⃣ CREATE ORDER */
             $order = Order::create([
                 'customer_id' => $customer->customer_id,
                 'subtotal' => $subtotal,
@@ -157,13 +165,15 @@ class QuickBuyController extends Controller
                 'discount_amount' => $discountAmount,
                 'total_amount' => $total,
                 'payment_method' => $request->payment_method,
-                'status' => 'completed',
+                'status' => $orderStatus,
             ]);
 
-            // Decrease inventory
-            $inventory->decrement('quantity', $request->quantity);
+            /* 8️⃣ DECREASE INVENTORY (chỉ COD) */
+            if ($request->payment_method === 'COD') {
+                $inventory->decrement('quantity', $request->quantity);
+            }
 
-            // Create order item
+            /* 9️⃣ CREATE ORDER ITEM */
             OrderItem::create([
                 'order_id' => $order->order_id,
                 'product_id' => $request->product_id,
@@ -173,7 +183,7 @@ class QuickBuyController extends Controller
                 'subtotal' => $subtotal,
             ]);
 
-            // Save coupon
+            /* 🔟 SAVE COUPON */
             if ($appliedCoupon) {
                 OrderCoupon::create([
                     'order_id' => $order->order_id,
@@ -182,9 +192,75 @@ class QuickBuyController extends Controller
                 ]);
             }
 
+            /* 1️⃣1️⃣ RESPONSE */
+            if ($request->payment_method === 'MOMO') {
+                return response()->json([
+                    'message' => 'Đơn hàng đã tạo, vui lòng thanh toán qua MOMO',
+                    'order' => [
+                        'order_id' => $order->order_id,
+                        'total_amount' => $total,
+                        'status' => 'pending',
+                        'payment_method' => 'MOMO'
+                    ],
+                    'qr_code' => [
+                        'order_id' => $order->order_id,
+                        'amount' => $total,
+                        'method' => 'MOMO',
+                        'qr_string' => "MOMO|ORDER_{$order->order_id}|{$total}|VND"
+                    ]
+                ]);
+            }
+
+            // COD response
             return response()->json([
-                'message' => 'Thanh toán thành công',
+                'message' => 'Thanh toán thành công (COD)',
                 'order' => $order->load('items.product', 'coupons.coupon'),
+            ]);
+        });
+    }
+
+    /* ======================= CONFIRM MOMO (Quick Buy) ======================= */
+    public function confirmMomo(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,order_id'
+        ]);
+
+        return DB::transaction(function () use ($request) {
+            $order = Order::with('items.product')
+                ->where('order_id', $request->order_id)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$order) {
+                return response()->json(['message' => 'Đơn hàng không tồn tại'], 404);
+            }
+
+            if ($order->status !== 'pending') {
+                return response()->json([
+                    'message' => 'Đơn hàng không ở trạng thái chờ thanh toán'
+                ], 400);
+            }
+
+            // MOMO → trừ kho SAU khi thanh toán
+            foreach ($order->items as $item) {
+                $inventory = Inventory::where('product_id', $item->product_id)
+                    ->where('size', $item->size)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$inventory || $inventory->quantity < $item->quantity) {
+                    throw new \Exception("Không đủ tồn kho cho sản phẩm {$item->product->product_name} size {$item->size}");
+                }
+
+                $inventory->decrement('quantity', $item->quantity);
+            }
+
+            $order->update(['status' => 'completed']);
+
+            return response()->json([
+                'message' => 'Thanh toán MOMO thành công',
+                'order' => $order->load('items.product', 'coupons.coupon')
             ]);
         });
     }

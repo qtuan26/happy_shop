@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, User, LogOut } from 'lucide-react';
+import { ShoppingCart, User, LogOut, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../../service/api';
 import SearchBar from './Search';
@@ -58,6 +58,18 @@ const Header = () => {
     navigate('/login');
   };
 
+  // ================== MỞ CHAT ==================
+  const handleOpenChat = () => {
+    if (!isLoggedIn) {
+      // Nếu chưa đăng nhập, chuyển đến trang login
+      navigate('/login');
+      return;
+    }
+    
+    // Dispatch event để Main layout bắt và mở chat
+    window.dispatchEvent(new Event('open-chat'));
+  };
+
   const handleCategoryClick = (category) => {
     setCurrentPage(category.category_id);
     navigate(`/${category.category_id}`);
@@ -85,11 +97,12 @@ const Header = () => {
             {/* SEARCH */}
             <SearchBar />
 
-            {/* SUPPORT */}
+            {/* SUPPORT - Sửa thành mở chat */}
             <button
-              className="px-4 py-3 hover:bg-blue-800 transition-colors"
-              onClick={() => navigate('/support')}
+              className="px-4 py-3 hover:bg-blue-800 transition-colors rounded-lg flex items-center gap-2"
+              onClick={handleOpenChat}
             >
+              <MessageCircle size={20} />
               <span className="font-bold">Hỗ trợ / Tư vấn</span>
             </button>
 
