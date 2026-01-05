@@ -1,130 +1,135 @@
-# Web Bán Giày
-
-## Giới thiệu
-Đây là dự án web bán giày trực tuyến, hỗ trợ quản lý từ người dùng, khách hàng, nhân viên, thương hiệu, sản phẩm, đơn hàng đến hệ thống hỗ trợ khách hàng và giỏ hàng. Hệ thống được thiết kế với khả năng mở rộng, quản lý dễ dàng và trải nghiệm người dùng thân thiện.
-
----
-
-## Tính năng chính
-
-### 1. Quản lý Người dùng (USERS)
-- Đăng ký tài khoản (customer, employee, admin)
-- Đăng nhập và xác thực người dùng
-- Lưu mật khẩu an toàn (hashing)
-- Phân quyền theo vai trò: `admin`, `employee`, `customer`
-
-### 2. Quản lý Khách hàng (CUSTOMERS)
-- Tạo hồ sơ khách hàng khi đăng ký
-- Lưu thông tin cá nhân: tên, địa chỉ, số điện thoại
-- Theo dõi ngày đăng ký
-- Khách hàng có thể:
-  - Mua hàng
-  - Nhắn tin cho nhân viên hỗ trợ
-  - Viết đánh giá sản phẩm
-  - Quản lý giỏ hàng
-
-### 3. Quản lý Nhân viên (EMPLOYEES)
-- Lưu hồ sơ nhân viên: tên, vị trí, số điện thoại
-- Theo dõi ngày tuyển dụng
-- Nhân viên xử lý hội thoại hỗ trợ khách hàng
-
-### 4. Quản lý Thương hiệu (BRANDS)
-- Tạo và quản lý danh sách hãng giày
-- Lưu website và quốc gia của thương hiệu
-
-### 5. Quản lý Danh mục sản phẩm (CATEGORIES)
-- Tạo và quản lý phân loại sản phẩm
-- Ví dụ: Running, Basketball, Casual, Boots…
-
-### 6. Quản lý Sản phẩm (PRODUCTS)
-- Lưu thông tin giày: tên, mô tả, giá, màu sắc, chất liệu
-- Gắn sản phẩm vào Brand và Category
-- Trạng thái `active` / `inactive`
-- Theo dõi ngày thêm sản phẩm
-
-### 7. Quản lý Tồn kho (INVENTORY)
-- Lưu tồn kho theo từng size
-- Theo dõi số lượng còn lại
-- Cập nhật khi bán hàng hoặc nhập hàng
-
-### 8. Quản lý Đơn hàng (ORDERS)
-- Tạo đơn hàng từ khách hàng
-- Tính tổng tiền, thuế, giảm giá
-- Lưu hình thức thanh toán và trạng thái đơn hàng
-- Áp dụng coupon nếu có
-
-### 9. Quản lý Chi tiết đơn hàng (ORDER_ITEMS)
-- Mỗi đơn hàng có thể chứa nhiều sản phẩm
-- Lưu size, số lượng, giá từng sản phẩm
-
-### 10. Mã giảm giá (COUPONS)
-- Tạo coupon theo phần trăm (%) hoặc số tiền
-- Giới hạn số lần sử dụng
-- Thiết lập thời hạn áp dụng
-- Trạng thái kích hoạt/không kích hoạt
-- Có thể áp dụng cho nhiều đơn hàng
-
-### 11. Áp mã giảm giá cho đơn hàng (ORDER_COUPONS)
-- Một đơn hàng có thể sử dụng coupon
-- Lưu lại số tiền giảm thực tế trên đơn hàng
-
-### 12. Đánh giá sản phẩm (PRODUCT_REVIEWS)
-- Khách hàng có thể:
-  - Đánh giá từ 1–5 sao
-  - Viết nhận xét chi tiết
-- Sản phẩm có thể có nhiều review để hiển thị gợi ý/xếp hạng
-
-### 13. Giỏ hàng (SHOPPING_CART)
-- Mỗi khách hàng có một giỏ hàng riêng
-- Lưu thời gian tạo và cập nhật giỏ hàng
-
-### 14. Mục trong giỏ hàng (CART_ITEMS)
-- Lưu sản phẩm, size, số lượng mà khách đã thêm
-- Dùng để tạo đơn hàng
-
-### 15. Hỗ trợ khách hàng (CONVERSATIONS & MESSAGES)
-**CONVERSATIONS**
-- Khách hàng mở hội thoại với nhân viên
-- Nhân viên có thể “handle” cuộc chat
-- Trạng thái: `open` / `closed`
-
-**MESSAGES**
-- Chat theo thời gian thực
-- Gửi text hoặc hình ảnh
-- Theo dõi người gửi: customer hoặc employee
-
----
-
-## Công nghệ sử dụng
-- **Frontend:** ReactJS, Vite, Tailwind CSS (hoặc Chakra/UI, Lucide Icons)
-- **Backend:** Laravel 
-- **Cơ sở dữ liệu:** MySQL
-- **Realtime Chat:** WebSocket / Pusher
-- **Authentication & Authorization:** JWT / Laravel Sanctum
-- **Version Control:** Git & GitHub
-
----
-
-## Cấu trúc cơ sở dữ liệu (tóm tắt)
-- `users`, `customers`, `employees`
-- `brands`, `categories`, `products`, `inventory`
-- `orders`, `order_items`, `coupons`, `order_coupons`
-- `shopping_cart`, `cart_items`
-- `conversations`, `messages`, `product_reviews`
-
----
-
-## Hướng dẫn cài đặt
-1. Clone dự án:
-```bash
-git clone https://github.com/qtuan26/happy_shop.git
-cd happy-shop
-
-2. Cài đặt dependencies frontend:
-cd frontend
-npm install
-npm run dev
-
-3. Cài đặt backend:
+ HappyShop - E-commerce Platform
+Dự án website bán giày thể thao với đầy đủ tính năng giỏ hàng, thanh toán, quản lý đơn hàng và chat hỗ trợ.
 
 
+
+🚀 Công nghệ sử dụng
+Backend
+
+Laravel 9+ - PHP Framework
+MySQL - Database
+Laravel Sanctum - Authentication
+Cloudinary - Cloud storage cho hình ảnh
+
+Frontend
+
+React 18+ - JavaScript Library
+React Router v6 - Routing
+Axios - HTTP Client
+Tailwind CSS - CSS Framework
+Lucide React - Icons
+
+
+💻 Yêu cầu hệ thống
+Backend
+
+PHP >= 8.0
+Composer
+MySQL >= 5.7
+Node.js >= 14.x (cho Laravel Mix/Vite)
+
+Frontend
+
+Node.js >= 14.x
+npm hoặc yarn
+
+
+🔧 Cài đặt Backend (Laravel)
+1. Clone repository và di chuyển vào thư mục backend
+bashcd backend
+2. Cài đặt dependencies
+bashcomposer install
+3. Tạo file .env
+bashcp .env.example .env
+4. Cấu hình .env
+Mở file .env và cấu hình các thông số:
+
+//env# App
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=base64:aGwBInn/1PcRTH9bQD8lWncH19a1a3wIMZdBATNA1fE=
+APP_DEBUG=true
+APP_URL=http://localhost
+NAME = "HELLO MAYAS CƯNG"
+
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=shoeshop_db
+DB_USERNAME=root
+DB_PASSWORD=
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=null
+MAIL_FROM_NAME="${APP_NAME}"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_APP_CLUSTER=mt1
+
+MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+
+5. Tạo database
+bash# Tạo database trong MySQL
+mysql -u root -p
+CREATE DATABASE happyshop_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+EXIT;
+6. Generate application key
+bashphp artisan key:generate
+7. Chạy migrations
+bashphp artisan migrate
+8. Chạy seeders (tạo dữ liệu mẫu)
+bashphp artisan db:seed
+Hoặc chạy từng seeder cụ thể:
+bashphp artisan db:seed --class=CategorySeeder
+php artisan db:seed --class=BrandSeeder
+php artisan db:seed --class=ProductSeeder
+php artisan db:seed --class=CouponSeeder
+php artisan db:seed --class=UserSeeder
+9. Tạo symbolic link cho storage (nếu cần)
+bashphp artisan storage:link
+10. Khởi động server
+bashphp artisan serve
+Backend sẽ chạy tại: http://127.0.0.1:8000
+
+⚛️ Cài đặt Frontend (React)
+1. Di chuyển vào thư mục frontend
+bashcd frontend
+2. Cài đặt dependencies
+bashnpm install
+3. Cấu hình API URL
+Tạo file .env trong thư mục frontend:
+
+//.env:
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
+VITE_BACKEND_URL=http://127.0.0.1:8000

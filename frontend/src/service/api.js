@@ -242,6 +242,34 @@ export default class ApiService {
       throw new Error(error.response?.data?.message || 'Xác nhận thanh toán thất bại');
     }
   }
+  // ===== ORDERS =====
+
+  static async getOrders() {
+    try {
+      const response = await axiosInstance.get('/orders');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Lỗi lấy danh sách đơn hàng';
+    }
+  }
+
+  static async getOrderDetail(orderId) {
+    try {
+      const response = await axiosInstance.get(`/orders/${orderId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Lỗi lấy chi tiết đơn hàng';
+    }
+  }
+
+  static async cancelOrder(orderId) {
+    try {
+      const response = await axiosInstance.post(`/orders/${orderId}/cancel`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Lỗi hủy đơn hàng';
+    }
+  }
   // ===== PRODUCT REVIEW =====
   static async submitReview(productId, data) {
     try {

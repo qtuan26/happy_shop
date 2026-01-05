@@ -7,10 +7,20 @@ const ProductPage = lazy(() => import("../components/products/ProductPage.jsx"))
 const ProductDetail = lazy(() => import("../components/products/ProductDetail.jsx"));
 const ShoppingCart = lazy(() => import("../components/pages/ShoppingCart.jsx"));
 const Home = lazy(() => import("../components/pages/Home.jsx"));
-const AdminChat = lazy(() => import("../components/chat/AdminChat.jsx"));
 const Introduction = lazy(() => import("../components/pages/Introduction.jsx"));
 const Account = lazy(() => import("../components/pages/Account.jsx"));
+const Order = lazy(() => import("../components/pages/Order.jsx"));
 const MoMoPayment = lazy(() => import("../components/pages/MoMOoPayment.jsx"));
+
+// Admin Components
+const AdminLayout = lazy(() => import("../components/admin/AdminLayout.jsx"));
+const AdminDashboard = lazy(() => import("../components/admin/AdminDashboard.jsx"));
+const AdminProducts = lazy(() => import("../components/admin/AdminProducts.jsx"));
+const AdminOrders = lazy(() => import("../components/admin/AdminOrders.jsx"));
+const AdminCustomers = lazy(() => import("../components/admin/AdminCustomers.jsx"));
+const AdminCoupons = lazy(() => import("../components/admin/AdminCoupons.jsx"));
+const AdminChat = lazy(() => import("../components/chat/AdminChat.jsx"));
+
 
 const routers = [
   // Auth routes
@@ -20,10 +30,25 @@ const routers = [
   // Standalone routes
   { path: "cart", component: ShoppingCart },
   { path: "account", component: Account },
+  { path: "orders", component: Order },
   { path: "momo-payment", component: MoMoPayment },
   
   // Admin routes
   { path: "admin-chat", component: AdminChat },
+  // Admin routes - Protected
+  {
+    path: "admin",
+    component: AdminLayout,
+    role: "admin",
+    children: [
+      { index: true, path: "dashboard", component: AdminDashboard },
+      { path: "products", component: AdminProducts },
+      { path: "orders", component: AdminOrders },
+      { path: "customers", component: AdminCustomers },
+      { path: "coupons", component: AdminCoupons },
+      { path: "chat", component: AdminChat },
+    ],
+  },
   
   // Main layout routes
   {

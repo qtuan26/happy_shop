@@ -9,6 +9,7 @@ class Customer extends Model
     protected $primaryKey = 'customer_id';
 
     protected $fillable = [
+        'user_id',
         'full_name',
         'phone',
         'address',

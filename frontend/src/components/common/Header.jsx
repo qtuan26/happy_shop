@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, User, LogOut, MessageCircle } from 'lucide-react';
+import { ShoppingCart, User, LogOut, MessageCircle,Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ApiService from '../../service/api';
 import SearchBar from './Search';
@@ -119,6 +119,14 @@ const Header = () => {
                   >
                     <User size={20} />
                     <span className="font-semibold">Tài khoản</span>
+                  </button>
+                  {/* Đơn hàng */}
+                  <button
+                    onClick={() => navigate('/orders')}
+                    className="flex items-center gap-2 hover:text-blue-300 transition-colors"
+                  >
+                    <Package size={20} />
+                    <span className="font-medium hidden lg:block">Đơn hàng</span>
                   </button>
 
                   <button

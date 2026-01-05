@@ -11,6 +11,9 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\QuickBuyController;
 use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\Admin\AdminCustomerController;
+use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\CustomerOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +36,27 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/chat/conversations', [ChatController::class, 'getConversations']);
     Route::get('/chat/{conversationId}', [ChatController::class, 'getConversationMessages']);
     Route::post('/chat/send', [ChatController::class, 'adminSendMessage']);
+
+    // Quản lý khách hàng
+    Route::prefix('customers')->group(function () {
+        Route::get('/', [AdminCustomerController::class, 'index']); // Danh sách
+        Route::get('/statistics', [AdminCustomerController::class, 'statistics']); // Thống kê
+        Route::get('/{id}', [AdminCustomerController::class, 'show']); // Chi tiết
+        Route::post('/', [AdminCustomerController::class, 'store']); // Thêm mới
+        Route::put('/{id}', [AdminCustomerController::class, 'update']); // Cập nhật
+        Route::delete('/{id}', [AdminCustomerController::class, 'destroy']); // Xóa
+        Route::post('/bulk-delete', [AdminCustomerController::class, 'bulkDelete']); // Xóa nhiều
+    });
+    // Quản lý đơn hàng
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [AdminOrderController::class, 'index']);        // Danh sách
+        Route::get('/{id}', [AdminOrderController::class, 'show']);     // Chi tiết
+        Route::put('/{id}/status', [AdminOrderController::class, 'updateStatus']); // Cập nhật trạng thái
+        Route::put('/{id}/cancel', [AdminOrderController::class, 'cancelOrder']);    
+    });
+    
+
+
     
     // Thêm các route quản lý khác
     Route::apiResource('categories', CategoryController::class);
@@ -50,6 +74,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Customer profile
     Route::get('/customer/profile', [CustomerController::class, 'profile']);
     Route::put('/customer/profile', [CustomerController::class, 'updateProfile']);
+
+    Route::get('/orders', [CustomerOrderController::class, 'index']);
+    Route::get('/orders/{id}', [CustomerOrderController::class, 'show']);
+    Route::post('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel']);
     
     // Cart
     Route::prefix('cart')->group(function () {

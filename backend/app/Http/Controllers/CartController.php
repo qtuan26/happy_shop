@@ -248,7 +248,7 @@ class CartController extends Controller
             $total = $subtotal + $shippingFee - $discountAmount;
 
             /* 5️⃣ ORDER STATUS */
-            $orderStatus = $request->payment_method === 'MOMO' ? 'pending' : 'completed';
+            $orderStatus = $request->payment_method === 'MOMO' ? 'pending' : 'paid';
 
             /* 6️⃣ CREATE ORDER */
             $order = Order::create([
@@ -359,7 +359,7 @@ class CartController extends Controller
                 $inventory->decrement('quantity', $item->quantity);
             }
 
-            $order->update(['status' => 'completed']);
+            $order->update(['status' => 'paid']);
 
             return response()->json([
                 'message' => 'Thanh toán MOMO thành công',
