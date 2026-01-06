@@ -12,8 +12,7 @@ const AdminLayout = () => {
   const location = useLocation();
 
   const menuItems = [
-    { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/admin/products', icon: Package, label: 'Sản phẩm' },
+    { path: '/admin', icon: Package, label: 'Sản phẩm' },
     { path: '/admin/orders', icon: ShoppingCart, label: 'Đơn hàng' },
     { path: '/admin/customers', icon: Users, label: 'Khách hàng' },
     { path: '/admin/coupons', icon: Tag, label: 'Mã giảm giá' },

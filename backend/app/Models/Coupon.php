@@ -12,14 +12,18 @@ class Coupon extends Model
 
     protected $fillable = [
         'coupon_code',
+        'title',
         'description',
         'discount_type',
         'discount_value',
-        'max_discount',
-        'min_order_value',
+        'max_discount_amount',
+        'min_purchase_amount',
+        'usage_limit',
         'start_date',
         'end_date',
         'is_active',
+        'url_image',
+        'public_url_image',
     ];
 
     protected $casts = [

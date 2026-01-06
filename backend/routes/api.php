@@ -11,9 +11,15 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\QuickBuyController;
 use App\Http\Controllers\ProductReviewController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\CustomerOrderController;
+
+
 use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminOrderController;
-use App\Http\Controllers\CustomerOrderController;
+use App\Http\Controllers\Admin\AdminCouponController;
+use App\Http\Controllers\Admin\AdminProductController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -54,14 +60,39 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
         Route::put('/{id}/status', [AdminOrderController::class, 'updateStatus']); // Cập nhật trạng thái
         Route::put('/{id}/cancel', [AdminOrderController::class, 'cancelOrder']);    
     });
+
+    //Quản lý giảm giá
+    Route::prefix('coupons')->group(function () {
+            Route::get('/', [AdminCouponController::class, 'index']);
+            Route::get('/{id}', [AdminCouponController::class, 'show']);
+            Route::post('/', [AdminCouponController::class, 'store']);
+            Route::put('/{id}', [AdminCouponController::class, 'update']);
+            Route::delete('/{id}', [AdminCouponController::class, 'destroy']);
+            Route::put('/{id}/toggle', [AdminCouponController::class, 'toggleActive']);
+        });
+
+    // Quản lý sản phẩm
+    Route::prefix('products')->group(function () {
+        Route::get('/', [AdminProductController::class, 'index']);
+        Route::get('/statistics', [AdminProductController::class, 'statistics']); // ⬅️ MỚI
+        Route::get('/{id}', [AdminProductController::class, 'show']);
+        Route::post('/', [AdminProductController::class, 'store']);
+        Route::post('/{id}', [AdminProductController::class, 'update']);
+        Route::delete('/{id}', [AdminProductController::class, 'destroy']);
+        Route::post('/{id}/toggle', [AdminProductController::class, 'toggleActive']);
+        
+        
+        Route::get('/{id}/inventory', [AdminProductController::class, 'getInventory']);
+        Route::post('/{id}/inventory', [AdminProductController::class, 'updateInventory']);
+        Route::get('/{id}/reviews', [AdminProductController::class, 'getReviews']);
+        Route::get('/{id}/sales-history', [AdminProductController::class, 'getSalesHistory']);
+    });
     
 
 
     
-    // Thêm các route quản lý khác
-    Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('products', ProductController::class);
-    Route::apiResource('coupons', CouponController::class);
+    
+    
 });
 
 // Customer routes (đã đăng nhập)

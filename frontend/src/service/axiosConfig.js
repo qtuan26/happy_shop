@@ -32,11 +32,14 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && error.response?.status === 403) {
+    const status = error.response?.status;
+
+    if (status === 401 || status === 403) {
       sessionStorage.clear();
-      message.error('Vui lòng đăng nhập để tiếp tục sử dụng');
-      window.location.href = '/login'
+      message.error("Vui lòng đăng nhập để tiếp tục");
+      window.location.href = "/login";
     }
+
     return Promise.reject(error);
   }
 );

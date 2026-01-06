@@ -62,6 +62,7 @@ class AdminCustomerController extends Controller
     {
         try {
             $customer = Customer::with(['user:id,email', 'orders'])->find($id);
+            
 
             if (!$customer) {
                 return response()->json([

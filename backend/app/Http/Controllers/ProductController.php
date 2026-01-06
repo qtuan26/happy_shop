@@ -117,30 +117,31 @@ class ProductController extends Controller
      
     // GET /api/products/top-selling
     public function topSelling()
-{
-    $topProducts = OrderItem::join('orders', 'orders.order_id', '=', 'order_items.order_id')
-        ->join('products', 'products.product_id', '=', 'order_items.product_id')
-        ->whereIn('orders.status', ['paid', 'completed'])
-        ->groupBy(
-            'products.product_id',
-            'products.category_id',
-            'products.product_name',
-            'products.url_image',
-            'products.base_price'
-        )
-        ->selectRaw('
-            products.product_id,
-            products.category_id,
-            products.product_name,
-            products.url_image,
-            products.base_price,
-            SUM(order_items.quantity) as total_sold
-        ')
-        ->orderByDesc('total_sold')
-        ->limit(6)
-        ->get();
+    {
+        $topProducts = OrderItem::join('orders', 'orders.order_id', '=', 'order_items.order_id')
+            ->join('products', 'products.product_id', '=', 'order_items.product_id')
+            ->whereIn('orders.status', ['paid', 'completed'])
+            ->where('products.is_active', 1) 
+            ->groupBy(
+                'products.product_id',
+                'products.category_id',
+                'products.product_name',
+                'products.url_image',
+                'products.base_price'
+            )
+            ->selectRaw('
+                products.product_id,
+                products.category_id,
+                products.product_name,
+                products.url_image,
+                products.base_price,
+                SUM(order_items.quantity) as total_sold
+            ')
+            ->orderByDesc('total_sold')
+            ->limit(6)
+            ->get();
 
-    return response()->json(['data' => $topProducts]);
-}
+        return response()->json(['data' => $topProducts]);
+    }
 
 }

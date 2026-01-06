@@ -534,7 +534,7 @@ const AdminCustomers = () => {
                   <div>
                     <h3 className="font-semibold mb-3">Đơn hàng gần đây</h3>
                     <div className="space-y-2">
-                      {selectedCustomer.orders.slice(0, 5).map((order) => (
+                      {selectedCustomer.orders.slice(0, 100).map((order) => (
                         <div key={order.order_id} className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50">
                           <div>
                             <p className="font-medium">Đơn hàng #{order.order_id}</p>

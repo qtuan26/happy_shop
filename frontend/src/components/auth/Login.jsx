@@ -56,9 +56,15 @@ const Login = () => {
     try {
       const data = await ApiService.login(formData);
       sessionStorage.setItem('token', data.token);
-      sessionStorage.setItem('user', JSON.stringify(data.user));
+      sessionStorage.setItem('user', JSON.stringify(data.data));
       message.success('Đăng nhập thành công');
+      // điều hướng theo role
+    if (data.data.role === 'admin') {
+      navigate('/admin');
+    } else {
       navigate('/');
+    }
+      
     } catch (error) {
       message.error(error || 'Đăng nhập thất bại');
     } finally {

@@ -21,7 +21,7 @@ class CustomerOrderController extends Controller
                 $q->where('user_id', $user->id);
             })
             ->orderByDesc('created_at')
-            ->paginate(10); // hoặc ->get()
+            ->get(); // hoặc ->get()
 
         return response()->json([
             'message' => 'Lấy danh sách đơn hàng thành công',
